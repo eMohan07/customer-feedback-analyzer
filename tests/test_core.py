@@ -3,11 +3,44 @@
 They start skipped. Remove the `skip` line as you work on each milestone.
 """
 import pytest
+from app.core import (
+    milestone_1,
+    get_categories,
+    get_label_tokens,
+    format_sample,
+)
 
 # Milestone 1: Define 3-5 feedback categories and create a small dataset of example comments with labels.
-@pytest.mark.skip(reason="remove this line when you start milestone 1")
 def test_milestone_1():
-    raise NotImplementedError("write the test for milestone 1")
+    dataset = milestone_1()
+    categories = get_categories()
+    label_tokens = get_label_tokens()
+
+    # Must define between 3 and 5 categories
+    assert 3 <= len(categories) <= 5
+    assert "product issue" in categories
+    assert "staff praise" in categories
+
+    # Each category must map to a unique special label token
+    assert len(label_tokens) == len(categories)
+    for cat in categories:
+        assert cat in label_tokens
+        token = label_tokens[cat]
+        assert token.startswith("[") and token.endswith("]")
+
+    # Dataset should contain examples for all categories
+    assert len(dataset) >= 15
+    seen_categories = set()
+    for row in dataset:
+        assert row["label"] in categories
+        assert len(row["text"].strip()) > 0
+        assert row["label_token"] == label_tokens[row["label"]]
+        assert "formatted_text" in row
+        assert row["text"] in row["formatted_text"]
+        assert row["label_token"] in row["formatted_text"]
+        seen_categories.add(row["label"])
+
+    assert seen_categories == set(categories)
 
 
 # Milestone 2: Extend GPT-2 tokenizer and model with new category tokens.
@@ -32,4 +65,3 @@ def test_milestone_4():
 @pytest.mark.skip(reason="remove this line when you start milestone 5")
 def test_milestone_5():
     raise NotImplementedError("write the test for milestone 5")
-

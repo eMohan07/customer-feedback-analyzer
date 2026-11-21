@@ -14,7 +14,7 @@ This Customer Feedback Analyzer helps retail managers quickly identify trends an
 
 Tick these off as you go, and commit after each one.
 
-- [ ] **1. Define 3-5 feedback categories and create a small dataset of example comments with labels.**  
+- [x] **1. Define 3-5 feedback categories and create a small dataset of example comments with labels.**  
       Hint: Refer to the drill's approach for creating a labeled dataset for classification.
 - [ ] **2. Extend GPT-2 tokenizer and model with new category tokens.**  
       Hint: Follow the drill's steps for adding special tokens to the tokenizer and resizing the model's embedding layer.
