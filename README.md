@@ -22,7 +22,7 @@ Tick these off as you go, and commit after each one.
       Hint: Utilize the Hugging Face `Trainer` class, as demonstrated in the drill, for fine-tuning.
 - [x] **4. Implement an inference function to classify new feedback.**  
       Hint: Adapt the drill's prediction logic to create a function that takes new text and returns a classification.
-- [ ] **5. Build a simple Streamlit app to input comments and show classifications.**  
+- [x] **5. Build a simple Streamlit app to input comments and show classifications.**  
       Hint: Use `streamlit.text_area` for input and `streamlit.write` to display the classification.
 
 ## Run it

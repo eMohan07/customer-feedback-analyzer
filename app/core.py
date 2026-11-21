@@ -288,5 +288,10 @@ def milestone_4(text: str = None, model=None, tokenizer=None):
 
 # --- Milestone 5: Build a simple Streamlit app to input comments and show classifications.
 # Hint: Use `streamlit.text_area` for input and `streamlit.write` to display the classification.
-def milestone_5():  # TODO(milestone 5)
-    raise NotImplementedError("TODO(milestone 5)")
+def milestone_5():
+    """
+    Milestone 5: Build a simple Streamlit app to input comments and show classifications.
+    Returns the absolute path to the Streamlit app script.
+    """
+    app_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "main.py"))
+    return app_path
