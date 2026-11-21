@@ -6,10 +6,17 @@ from datasets import Dataset
 from transformers import (
     GPT2Tokenizer,
     GPT2LMHeadModel,
-    Trainer,
-    TrainingArguments,
-    DataCollatorForLanguageModeling,
 )
+try:
+    from transformers import (
+        Trainer,
+        TrainingArguments,
+        DataCollatorForLanguageModeling,
+    )
+except ImportError:
+    Trainer = None
+    TrainingArguments = None
+    DataCollatorForLanguageModeling = None
 
 # --- Milestone 1: Define 3-5 feedback categories and create a small dataset of example comments with labels.
 # Hint: Refer to the drill's approach for creating a labeled dataset for classification.
@@ -151,6 +158,11 @@ def milestone_3(
     """
     Fine-tunes the model on the feedback classification dataset using Hugging Face Trainer.
     """
+    if Trainer is None or TrainingArguments is None or DataCollatorForLanguageModeling is None:
+        raise ImportError(
+            "Using the Trainer with PyTorch requires accelerate: run `pip install accelerate`"
+        )
+
     if tokenizer is None or model is None:
         tok, mod = milestone_2()
         tokenizer = tokenizer or tok

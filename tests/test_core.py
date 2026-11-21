@@ -6,7 +6,6 @@ import os
 from unittest.mock import patch
 import pytest
 import torch
-from transformers import Trainer
 from app.core import (
     milestone_1,
     milestone_2,
@@ -76,6 +75,7 @@ def test_milestone_2():
 
 # Milestone 3: Fine-tune the model using the Hugging Face Trainer.
 def test_milestone_3():
+    from transformers import Trainer
     # Run fine-tuning with 1 step to verify the Hugging Face Trainer pipeline executes properly
     result = milestone_3(max_steps=1)
     trainer, model, tokenizer = result
