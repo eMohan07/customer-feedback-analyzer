@@ -16,7 +16,7 @@ Tick these off as you go, and commit after each one.
 
 - [x] **1. Define 3-5 feedback categories and create a small dataset of example comments with labels.**  
       Hint: Refer to the drill's approach for creating a labeled dataset for classification.
-- [ ] **2. Extend GPT-2 tokenizer and model with new category tokens.**  
+- [x] **2. Extend GPT-2 tokenizer and model with new category tokens.**  
       Hint: Follow the drill's steps for adding special tokens to the tokenizer and resizing the model's embedding layer.
 - [ ] **3. Fine-tune the model using the Hugging Face Trainer.**  
       Hint: Utilize the Hugging Face `Trainer` class, as demonstrated in the drill, for fine-tuning.

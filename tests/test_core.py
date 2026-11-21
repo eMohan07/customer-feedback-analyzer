@@ -5,6 +5,7 @@ They start skipped. Remove the `skip` line as you work on each milestone.
 import pytest
 from app.core import (
     milestone_1,
+    milestone_2,
     get_categories,
     get_label_tokens,
     format_sample,
@@ -44,9 +45,24 @@ def test_milestone_1():
 
 
 # Milestone 2: Extend GPT-2 tokenizer and model with new category tokens.
-@pytest.mark.skip(reason="remove this line when you start milestone 2")
 def test_milestone_2():
-    raise NotImplementedError("write the test for milestone 2")
+    tokenizer, model = milestone_2()
+    label_tokens = get_label_tokens()
+
+    # Tokenizer has pad token
+    assert tokenizer.pad_token is not None
+
+    # Check that all special category tokens are recognized by the tokenizer
+    for token in label_tokens.values():
+        token_id = tokenizer.convert_tokens_to_ids(token)
+        assert token_id is not None
+        assert token_id != tokenizer.unk_token_id
+        # Ensure roundtrip decoding works
+        decoded = tokenizer.decode([token_id])
+        assert token in decoded
+
+    # Model embedding layer has been resized to match tokenizer vocab size
+    assert model.get_input_embeddings().weight.shape[0] == len(tokenizer)
 
 
 # Milestone 3: Fine-tune the model using the Hugging Face Trainer.

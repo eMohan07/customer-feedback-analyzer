@@ -1,5 +1,7 @@
 """Your code. One stub per milestone; build them in order and keep each one small."""
+import os
 from datasets import Dataset
+from transformers import GPT2Tokenizer, GPT2LMHeadModel
 
 # --- Milestone 1: Define 3-5 feedback categories and create a small dataset of example comments with labels.
 # Hint: Refer to the drill's approach for creating a labeled dataset for classification.
@@ -87,8 +89,31 @@ def milestone_1():  # Milestone 1
 
 # --- Milestone 2: Extend GPT-2 tokenizer and model with new category tokens.
 # Hint: Follow the drill's steps for adding special tokens to the tokenizer and resizing the model's embedding layer.
-def milestone_2():  # TODO(milestone 2)
-    raise NotImplementedError("TODO(milestone 2)")
+def milestone_2(model_name: str = "gpt2"):
+    """
+    Extends GPT-2 tokenizer and model with new category tokens.
+    Adds pad token if missing, registers additional special tokens,
+    and resizes the model's embedding layer to match tokenizer length.
+    """
+    try:
+        tokenizer = GPT2Tokenizer.from_pretrained(model_name, local_files_only=True)
+    except Exception:
+        tokenizer = GPT2Tokenizer.from_pretrained(model_name)
+
+    if tokenizer.pad_token is None:
+        tokenizer.pad_token = tokenizer.eos_token
+
+    tokens_to_add = [tok for tok in LABEL_TOKENS.values() if tok not in tokenizer.get_vocab()]
+    if tokens_to_add:
+        tokenizer.add_special_tokens({"additional_special_tokens": tokens_to_add})
+
+    try:
+        model = GPT2LMHeadModel.from_pretrained(model_name, local_files_only=True)
+    except Exception:
+        model = GPT2LMHeadModel.from_pretrained(model_name)
+
+    model.resize_token_embeddings(len(tokenizer))
+    return tokenizer, model
 
 
 # --- Milestone 3: Fine-tune the model using the Hugging Face Trainer.
