@@ -1,7 +1,15 @@
 """Your code. One stub per milestone; build them in order and keep each one small."""
 import os
+import tempfile
+import torch
 from datasets import Dataset
-from transformers import GPT2Tokenizer, GPT2LMHeadModel
+from transformers import (
+    GPT2Tokenizer,
+    GPT2LMHeadModel,
+    Trainer,
+    TrainingArguments,
+    DataCollatorForLanguageModeling,
+)
 
 # --- Milestone 1: Define 3-5 feedback categories and create a small dataset of example comments with labels.
 # Hint: Refer to the drill's approach for creating a labeled dataset for classification.
@@ -118,8 +126,78 @@ def milestone_2(model_name: str = "gpt2"):
 
 # --- Milestone 3: Fine-tune the model using the Hugging Face Trainer.
 # Hint: Utilize the Hugging Face `Trainer` class, as demonstrated in the drill, for fine-tuning.
-def milestone_3():  # TODO(milestone 3)
-    raise NotImplementedError("TODO(milestone 3)")
+
+class TrainingResult(tuple):
+    """Container holding trainer, model, and tokenizer, supporting tuple unpacking and attribute access."""
+    def __new__(cls, trainer, model, tokenizer):
+        return super(TrainingResult, cls).__new__(cls, (trainer, model, tokenizer))
+
+    def __init__(self, trainer, model, tokenizer):
+        self.trainer = trainer
+        self.model = model
+        self.tokenizer = tokenizer
+
+
+def milestone_3(
+    model=None,
+    tokenizer=None,
+    dataset=None,
+    output_dir: str = None,
+    num_train_epochs: int = 1,
+    per_device_train_batch_size: int = 4,
+    learning_rate: float = 5e-5,
+    max_steps: int = None,
+):
+    """
+    Fine-tunes the model on the feedback classification dataset using Hugging Face Trainer.
+    """
+    if tokenizer is None or model is None:
+        tok, mod = milestone_2()
+        tokenizer = tokenizer or tok
+        model = model or mod
+
+    if dataset is None:
+        dataset = create_feedback_dataset()
+
+    if output_dir is None:
+        output_dir = tempfile.mkdtemp(prefix="gpt2_feedback_")
+
+    # Format texts with EOS token for causal language model training
+    texts_with_eos = [item + tokenizer.eos_token for item in dataset["formatted_text"]]
+    tokenized = tokenizer(
+        texts_with_eos,
+        truncation=True,
+        padding=True,
+        max_length=64,
+        return_tensors=None,
+    )
+    train_dataset = Dataset.from_dict(tokenized)
+
+    training_kwargs = {
+        "output_dir": output_dir,
+        "per_device_train_batch_size": per_device_train_batch_size,
+        "learning_rate": learning_rate,
+        "logging_steps": 1,
+        "save_strategy": "no",
+        "report_to": "none",
+        "use_cpu": not torch.cuda.is_available(),
+    }
+    if max_steps is not None:
+        training_kwargs["max_steps"] = max_steps
+    else:
+        training_kwargs["num_train_epochs"] = num_train_epochs
+
+    training_args = TrainingArguments(**training_kwargs)
+
+    trainer = Trainer(
+        model=model,
+        args=training_args,
+        train_dataset=train_dataset,
+        data_collator=DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False),
+    )
+
+    trainer.train()
+    return TrainingResult(trainer, model, tokenizer)
 
 
 # --- Milestone 4: Implement an inference function to classify new feedback.

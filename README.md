@@ -18,7 +18,7 @@ Tick these off as you go, and commit after each one.
       Hint: Refer to the drill's approach for creating a labeled dataset for classification.
 - [x] **2. Extend GPT-2 tokenizer and model with new category tokens.**  
       Hint: Follow the drill's steps for adding special tokens to the tokenizer and resizing the model's embedding layer.
-- [ ] **3. Fine-tune the model using the Hugging Face Trainer.**  
+- [x] **3. Fine-tune the model using the Hugging Face Trainer.**  
       Hint: Utilize the Hugging Face `Trainer` class, as demonstrated in the drill, for fine-tuning.
 - [ ] **4. Implement an inference function to classify new feedback.**  
       Hint: Adapt the drill's prediction logic to create a function that takes new text and returns a classification.

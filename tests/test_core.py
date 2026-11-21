@@ -3,9 +3,11 @@
 They start skipped. Remove the `skip` line as you work on each milestone.
 """
 import pytest
+from transformers import Trainer
 from app.core import (
     milestone_1,
     milestone_2,
+    milestone_3,
     get_categories,
     get_label_tokens,
     format_sample,
@@ -66,9 +68,15 @@ def test_milestone_2():
 
 
 # Milestone 3: Fine-tune the model using the Hugging Face Trainer.
-@pytest.mark.skip(reason="remove this line when you start milestone 3")
 def test_milestone_3():
-    raise NotImplementedError("write the test for milestone 3")
+    # Run fine-tuning with 1 step to verify the Hugging Face Trainer pipeline executes properly
+    result = milestone_3(max_steps=1)
+    trainer, model, tokenizer = result
+
+    assert isinstance(trainer, Trainer)
+    assert trainer.state.global_step >= 1
+    assert model is not None
+    assert tokenizer is not None
 
 
 # Milestone 4: Implement an inference function to classify new feedback.
