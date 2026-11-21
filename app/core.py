@@ -202,8 +202,88 @@ def milestone_3(
 
 # --- Milestone 4: Implement an inference function to classify new feedback.
 # Hint: Adapt the drill's prediction logic to create a function that takes new text and returns a classification.
-def milestone_4():  # TODO(milestone 4)
-    raise NotImplementedError("TODO(milestone 4)")
+
+def classify_feedback(text: str, model=None, tokenizer=None) -> str:
+    """
+    Classifies a customer feedback comment into one of the defined categories.
+    Uses GPT-2 model and tokenizer with special category label tokens.
+    """
+    if tokenizer is None or model is None:
+        tok, mod = milestone_2()
+        tokenizer = tokenizer or tok
+        model = model or mod
+
+    prompt = f"Feedback: {text}\nCategory:"
+    inputs = tokenizer(prompt, return_tensors="pt")
+    inputs = {k: v.to(model.device) for k, v in inputs.items()}
+
+    with torch.no_grad():
+        outputs = model(**inputs)
+        next_token_logits = outputs.logits[0, -1, :]
+
+    # Evaluate logits for each candidate category token
+    cat_scores = {}
+    for cat, token_str in LABEL_TOKENS.items():
+        token_id = tokenizer.convert_tokens_to_ids(token_str)
+        cat_scores[cat] = next_token_logits[token_id].item()
+
+    best_category = max(cat_scores, key=cat_scores.get)
+
+    # Attempt generation to check for exact label token output
+    try:
+        gen_outputs = model.generate(
+            **inputs,
+            max_new_tokens=2,
+            pad_token_id=tokenizer.pad_token_id,
+            eos_token_id=tokenizer.eos_token_id,
+            do_sample=False,
+        )
+        new_ids = gen_outputs[0][inputs["input_ids"].shape[1]:]
+        gen_text = tokenizer.decode(new_ids, skip_special_tokens=False).strip()
+        for token_str, cat in TOKEN_TO_LABEL.items():
+            if token_str in gen_text:
+                return cat
+    except Exception:
+        pass
+
+    return best_category
+
+
+def classify_feedback_with_confidence(text: str, model=None, tokenizer=None):
+    """
+    Classifies a customer feedback comment and returns category, confidence, and scores dict.
+    """
+    if tokenizer is None or model is None:
+        tok, mod = milestone_2()
+        tokenizer = tokenizer or tok
+        model = model or mod
+
+    prompt = f"Feedback: {text}\nCategory:"
+    inputs = tokenizer(prompt, return_tensors="pt")
+    inputs = {k: v.to(model.device) for k, v in inputs.items()}
+
+    with torch.no_grad():
+        outputs = model(**inputs)
+        next_token_logits = outputs.logits[0, -1, :]
+
+    token_ids = [tokenizer.convert_tokens_to_ids(LABEL_TOKENS[c]) for c in CATEGORIES]
+    logits_subset = torch.stack([next_token_logits[tid] for tid in token_ids])
+    probs = torch.softmax(logits_subset, dim=-1)
+
+    scores = {cat: probs[i].item() for i, cat in enumerate(CATEGORIES)}
+    best_cat = max(scores, key=scores.get)
+    confidence = scores[best_cat]
+    return best_cat, confidence, scores
+
+
+def milestone_4(text: str = None, model=None, tokenizer=None):
+    """
+    Milestone 4: Implement an inference function to classify new feedback.
+    Returns the inference function or executes classification if parameters are provided.
+    """
+    if text is not None:
+        return classify_feedback(text, model=model, tokenizer=tokenizer)
+    return classify_feedback
 
 
 # --- Milestone 5: Build a simple Streamlit app to input comments and show classifications.

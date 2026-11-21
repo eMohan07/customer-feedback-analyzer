@@ -8,6 +8,9 @@ from app.core import (
     milestone_1,
     milestone_2,
     milestone_3,
+    milestone_4,
+    classify_feedback,
+    classify_feedback_with_confidence,
     get_categories,
     get_label_tokens,
     format_sample,
@@ -80,9 +83,24 @@ def test_milestone_3():
 
 
 # Milestone 4: Implement an inference function to classify new feedback.
-@pytest.mark.skip(reason="remove this line when you start milestone 4")
 def test_milestone_4():
-    raise NotImplementedError("write the test for milestone 4")
+    tokenizer, model = milestone_2()
+    inference_fn = milestone_4()
+    categories = get_categories()
+
+    test_comment = "The cashier at checkout was very polite and helpful."
+    prediction = inference_fn(test_comment, model=model, tokenizer=tokenizer)
+    assert prediction in categories
+
+    # Also test direct milestone_4 execution with text
+    prediction_direct = milestone_4(test_comment, model=model, tokenizer=tokenizer)
+    assert prediction_direct in categories
+
+    # Verify classify_feedback_with_confidence returns category and valid probability
+    cat, conf, scores = classify_feedback_with_confidence(test_comment, model=model, tokenizer=tokenizer)
+    assert cat in categories
+    assert 0.0 <= conf <= 1.0
+    assert len(scores) == len(categories)
 
 
 # Milestone 5: Build a simple Streamlit app to input comments and show classifications.
